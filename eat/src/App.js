@@ -31,17 +31,24 @@ function Button({ children, ...props }) {
 
 function App() {
   const [showAddFriend, setShowAddFriend] = useState(false);
+  const [friends, setFriends] = useState(initialFriends);
 
   function handleshowAddFriend() {
     return setShowAddFriend((show) => !show);
   }
 
+  function handleAddFriends(friend) {
+    return (
+      setFriends((friends) => [...friends, friend]), setShowAddFriend(false)
+    );
+  }
+
   return (
     <div className="app">
       <div className="sidebar">
-        <FriendsList />
+        <FriendsList friends={friends} />
 
-        {showAddFriend && <FormAddFriend s />}
+        {showAddFriend && <FormAddFriend onAddFriend={handleAddFriends} />}
         <Button onClick={handleshowAddFriend}>
           {showAddFriend ? "Close" : "Add Friend"}
         </Button>
@@ -51,8 +58,7 @@ function App() {
   );
 }
 
-function FriendsList() {
-  const friends = initialFriends;
+function FriendsList({ friends }) {
   return (
     <ul>
       {friends.map((friend) => (
@@ -85,13 +91,42 @@ function Friend({ friend }) {
   );
 }
 
-function FormAddFriend() {
+function FormAddFriend({ onAddFriend }) {
+  const [name, setName] = useState("");
+  const [image, setImgage] = useState("https://i.pravatar.cc/42");
+
+  const id = crypto.randomUUID();
+
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    if (!name || !image) return;
+    const newFriend = {
+      id,
+      name,
+      image: `${image}?=${id}`,
+      balance: 0,
+    };
+    console.log(newFriend);
+    onAddFriend(newFriend);
+    setName("");
+    setImgage("https://i.pravatar.cc/48");
+  }
+
   return (
-    <form className="form-add-friend">
+    <form className="form-add-friend" onSubmit={handleSubmit}>
       <label>💃Friend name🕺</label>
-      <input type="text" />
+      <input
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
       <label>😎 Image URL </label>
-      <input type="text" />
+      <input
+        type="text"
+        value={image}
+        onChange={(e) => setImgage(e.target.value)}
+      />
       <Button>Add</Button>
     </form>
   );
