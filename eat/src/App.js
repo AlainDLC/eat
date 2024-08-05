@@ -19,6 +19,12 @@ const initialFriends = [
     image: "https://i.pravatar.cc/44?u=499466",
     balance: 0,
   },
+  {
+    id: 493476,
+    name: "Ploppy",
+    image: "https://i.pravatar.cc/44?u=499262",
+    balance: 20,
+  },
 ];
 
 function Button({ children, ...props }) {
@@ -49,6 +55,16 @@ function App() {
       setFriends((friends) => [...friends, friend]), setShowAddFriend(false)
     );
   }
+  function handleSplitBill(value) {
+    setFriends((friends) =>
+      friends.map((friend) =>
+        friend.id === selectedFriend.id
+          ? { ...friend, balance: friend.balance + value }
+          : friend
+      )
+    );
+    setSelectedFriend(null);
+  }
 
   return (
     <div className="app">
@@ -64,7 +80,12 @@ function App() {
           {showAddFriend ? "Close" : "Add Friend"}
         </Button>
       </div>
-      {selectedFriend && <FormSplitBill selectedFriend={selectedFriend} />}
+      {selectedFriend && (
+        <FormSplitBill
+          selectedFriend={selectedFriend}
+          onSplitbill={handleSplitBill}
+        />
+      )}
     </div>
   );
 }
@@ -127,7 +148,7 @@ function FormAddFriend({ onAddFriend }) {
       image: `${image}?=${id}`,
       balance: 0,
     };
-    console.log(newFriend);
+
     onAddFriend(newFriend);
     setName("");
     setImgage("https://i.pravatar.cc/41");
@@ -152,7 +173,7 @@ function FormAddFriend({ onAddFriend }) {
   );
 }
 
-function FormSplitBill({ selectedFriend }) {
+function FormSplitBill({ selectedFriend, onSplitbill }) {
   const [bill, setBill] = useState("");
   const [paidByUser, setPaidByUser] = useState("");
   const paidByFrind = bill ? bill - paidByUser : "";
@@ -160,6 +181,8 @@ function FormSplitBill({ selectedFriend }) {
 
   function handleSubmit(e) {
     e.preventDefault();
+    if (!bill || !paidByUser) return;
+    onSplitbill(whoIsPaying === "user" ? paidByFrind : -paidByUser);
   }
 
   return (
